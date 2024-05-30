@@ -44,7 +44,7 @@ public class AuthController {
     public ResponseEntity<List<UserInfoResponse>> getAllUsers() {
         List<User> users = userRepository.findAll();
         List<UserInfoResponse> userInfoResponses = users.stream()
-                .map(user -> new UserInfoResponse(user.getUsername(), user.getEmail(), user.getRoles()))
+                .map(user -> new UserInfoResponse(user.getId(),user.getUsername(), user.getEmail(), user.getRoles(),user.getAdress(),user.getLastName(),user.getFirstName(),user.getPositionName(),user.getLocation(),user.getNumber(),user.getOrganization(),user.getPublicName()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(userInfoResponses);
     }
@@ -136,7 +136,74 @@ public class AuthController {
         User user = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new RuntimeException("Error: User not found."));
 
-        return ResponseEntity.ok(new UserInfoResponse(user.getUsername(), user.getEmail(), user.getRoles()));
+        return ResponseEntity.ok(new UserInfoResponse(user.getId(),user.getUsername(), user.getEmail(), user.getRoles(),user.getAdress(),user.getLastName(),user.getFirstName(),user.getPositionName(),user.getLocation(),user.getNumber(),user.getOrganization(),user.getPublicName()));
+    }
+    @PutMapping("/user/update")
+    public ResponseEntity<?> updateLoggedInUser(Principal principal, @RequestBody UpdateUserRequest updateUserRequest) {
+        if (principal == null || principal.getName() == null) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: No user is logged in."));
+        }
+
+        User user = userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new RuntimeException("Error: User not found."));
+
+        // Aktualizacja tylko tych pól, które zostały przekazane w żądaniu aktualizacji
+        if (updateUserRequest.getUsername() != null) {
+            user.setUsername(updateUserRequest.getUsername());
+        }
+        if (updateUserRequest.getEmail() != null) {
+            user.setEmail(updateUserRequest.getEmail());
+        }
+        if (updateUserRequest.getAdress() != null) {
+            user.setAdress(updateUserRequest.getAdress());
+        }
+        if (updateUserRequest.getLastName() != null) {
+            user.setLastName(updateUserRequest.getLastName());
+        }
+        if (updateUserRequest.getFirstName() != null) {
+            user.setFirstName(updateUserRequest.getFirstName());
+        }
+        if (updateUserRequest.getPositionName() != null) {
+            user.setPositionName(updateUserRequest.getPositionName());
+        }
+        if (updateUserRequest.getLocation() != null) {
+            user.setLocation(updateUserRequest.getLocation());
+        }
+        if (updateUserRequest.getNumber() != null) {
+            user.setNumber(updateUserRequest.getNumber());
+        }
+        if (updateUserRequest.getOrganization() != null) {
+            user.setOrganization(updateUserRequest.getOrganization());
+        }
+        if (updateUserRequest.getPublicName() != null) {
+            user.setPublicName(updateUserRequest.getPublicName());
+        }
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse("User updated successfully!"));
+    }
+    @PutMapping("/user/update-password")
+    public ResponseEntity<?> updateLoggedInUserPassword(Principal principal, @RequestBody UpdatePasswordRequest updatePasswordRequest) {
+        if (principal == null || principal.getName() == null) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: No user is logged in."));
+        }
+
+        User user = userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new RuntimeException("Error: User not found."));
+
+        if (!encoder.matches(updatePasswordRequest.getOldPassword(), user.getPassword())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Old password is incorrect."));
+        }
+
+        if (!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getConfirmPassword())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: New password and confirm password do not match."));
+        }
+
+        user.setPassword(encoder.encode(updatePasswordRequest.getNewPassword()));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse("Password updated successfully!"));
     }
     @DeleteMapping("/delete/{username}")
     public ResponseEntity<?> deleteUser(@PathVariable String username) {

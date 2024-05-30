@@ -25,15 +25,7 @@ public class Project {
     @JoinColumn(name = "leader_id", referencedColumnName = "id")
     private User leader;
 
-    @ManyToMany
-    @JoinTable(
-            name = "project_users",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> users = new HashSet<>();
 
-    // Gettery i settery
     public Long getId() {
         return id;
     }
@@ -72,14 +64,6 @@ public class Project {
 
     public void setLeader(User leader) {
         this.leader = leader;
-    }
-
-    public Set<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<User> users) {
-        this.users = users;
     }
 
 
