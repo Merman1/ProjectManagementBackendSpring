@@ -64,6 +64,33 @@ public class IssueController {
         }
     }
 
+    @PostMapping("/CreateBacklog")
+    public ResponseEntity<Issue> createIssueBacklog(@RequestBody Issue issue) {
+        try {
+            logger.info("Creating issue with name: " + issue.getNazwa());
+
+
+                // Dodaj przypisanego użytkownika (lub użytkowników) do zbioru użytkowników nowego zadania
+                if (issue.getUsers() != null && !issue.getUsers().isEmpty()) {
+                    for (User user : issue.getUsers()) {
+                        issue.getUsers().add(user);
+                    }
+
+
+                // Zapisz nowe zadanie
+                Issue createdIssue = issueService.save(issue);
+
+                return ResponseEntity.ok(createdIssue);
+            } else {
+                return ResponseEntity.badRequest().build(); // Jeśli sprintId nie został przekazany
+
+            }
+        } catch (Exception e) {
+            logger.error("Error creating issue", e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 
 
 

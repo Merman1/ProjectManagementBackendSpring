@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import org.springframework.data.annotation.Id;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "comment")
@@ -21,6 +23,14 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    @ManyToMany
+    @JoinTable(
+            name = "comment_issues",
+            joinColumns = @JoinColumn(name = "comment_id"),
+            inverseJoinColumns = @JoinColumn(name = "issues_id")
+    )
+    private Set<Issue> issues = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -52,5 +62,13 @@ public class Comment {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Set<Issue> getIssues() {
+        return issues;
+    }
+
+    public void setIssues(Set<Issue> issues) {
+        this.issues = issues;
     }
 }

@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @CrossOrigin(origins = "http://localhost:5173", maxAge = 3600)
 @RestController
@@ -14,6 +16,9 @@ public class CommentController {
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private IssueService issueService;
 
     @GetMapping
     public List<Comment> getAllComments() {
@@ -30,6 +35,31 @@ public class CommentController {
     @PostMapping
     public Comment createComment(@RequestBody Comment comment) {
         return commentService.save(comment);
+    }
+    // Endpoint do przypisywania komentarzy do zadań
+    @PostMapping("/assign/{issueId}")
+    public ResponseEntity<Comment> createCommentForIssue(@PathVariable Long issueId, @RequestBody Comment comment) {
+        Optional<Issue> issue = issueService.findById(issueId);
+        if (issue.isPresent()) {
+            Issue foundIssue = issue.get();
+
+            // Ustawienie identyfikatora zadania w komentarzu
+            Set<Issue> issues = new HashSet<>();
+            issues.add(foundIssue);
+            comment.setIssues(issues);
+
+            Comment savedComment = commentService.save(comment);
+            return ResponseEntity.ok(savedComment);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+
+    @GetMapping("/issue/{issueId}")
+    public List<Comment> getCommentsForIssue(@PathVariable Long issueId) {
+        return commentService.findByIssueId(issueId);
     }
 
     @PutMapping("/{id}")

@@ -24,6 +24,10 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
+    // Metoda do pobierania komentarzy dla określonego zadania
+    public List<Comment> findByIssueId(Long issueId) {
+        return commentRepository.findByIssues_Id(issueId);
+    }
     public void deleteById(Long id) {
         commentRepository.deleteById(id);
     }

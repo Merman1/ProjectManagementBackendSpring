@@ -33,13 +33,6 @@ public class Issue {
     )
     private Set<User> users = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "issue_comment",
-            joinColumns = @JoinColumn(name = "issue_id"),
-            inverseJoinColumns = @JoinColumn(name = "comment_id")
-    )
-    private Set<Comment> comments = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "sprint_id", referencedColumnName = "id")
@@ -84,13 +77,7 @@ public class Issue {
         this.users = users;
     }
 
-    public Set<Comment> getComments() {
-        return comments;
-    }
 
-    public void setComments(Set<Comment> comments) {
-        this.comments = comments;
-    }
 
     public Sprint getSprint() {
         return sprint;
