@@ -6,6 +6,7 @@ import com.example.projectmanagementbackendspring.Project.ProjectRepository;
 import com.example.projectmanagementbackendspring.Project.ProjectService;
 import com.example.projectmanagementbackendspring.user.User;
 import com.example.projectmanagementbackendspring.user.UserRepository;
+import com.example.projectmanagementbackendspring.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,9 @@ public class SprintController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private ProjectService projectService;
@@ -82,6 +86,9 @@ public class SprintController {
 
         // Pobierz inne pola potrzebne do utworzenia sprintu
 
+        // Pobierz ID lidera z danych żądania
+        Long leaderId = ((Number) sprintData.get("leaderId")).longValue();
+
         // Utwórz nowy obiekt Sprint i ustaw jego pola
         Sprint sprint = new Sprint();
         sprint.setName(name);
@@ -93,9 +100,14 @@ public class SprintController {
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
         sprint.setProject(project);
 
+        // Pobierz lidera na podstawie leaderId
+        User leader = userService.findById(leaderId);
+        sprint.setUser(leader);
+
         // Zapisz sprint za pomocą serwisu
         return sprintService.save(sprint);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Sprint> updateSprint(@PathVariable Long id, @RequestBody Sprint sprintDetails) {

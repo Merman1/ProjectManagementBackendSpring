@@ -20,7 +20,8 @@ public class IssueController {
 
     @Autowired
     private IssueService issueService;
-
+@Autowired
+private SprintService sprintService;
     @GetMapping
     public List<Issue> getAllIssues() {
         logger.info("Fetching all issues");
@@ -100,12 +101,25 @@ public class IssueController {
         Optional<Issue> existingIssue = issueService.findById(id);
         if (existingIssue.isPresent()) {
             issue.setId(id);
+
+            // Check if the sprint is provided and set it accordingly
+            if (issue.getSprint() != null) {
+                Optional<Sprint> sprint = sprintService.findById(issue.getSprint().getId());
+                if (sprint.isPresent()) {
+                    issue.setSprint(sprint.get());
+                } else {
+                    issue.setSprint(null);
+                }
+            }
+
             Issue updatedIssue = issueService.save(issue);
             return ResponseEntity.ok(updatedIssue);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteIssue(@PathVariable Long id) {

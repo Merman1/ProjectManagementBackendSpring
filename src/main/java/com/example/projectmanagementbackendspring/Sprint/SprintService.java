@@ -1,5 +1,7 @@
 package com.example.projectmanagementbackendspring.Sprint;
 
+import com.example.projectmanagementbackendspring.user.User;
+import com.example.projectmanagementbackendspring.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,9 @@ public class SprintService {
         return sprintRepository.findAll();
     }
 
+    @Autowired
+    private UserRepository userRepository;
+    
     public Optional<Sprint> findById(Long id) {
         return sprintRepository.findById(id);
     }
